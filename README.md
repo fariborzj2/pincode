@@ -2,6 +2,10 @@
 
 A JavaScript class for creating and managing PIN code inputs.
 
+## Demo
+A screenshot of the plugins pincode input fields with single instance to illustrate a login procedure and two instances for registration purposes:   
+![screenshot](https://www.kdnsepeti.com/uploads/pincode.png)
+
 ## Installation
 
 You can install the PinCode class via npm:
@@ -17,7 +21,7 @@ Include the PinCode JavaScript file in your HTML
 1. Include code:
 
 ```html
-	<script src="pincode.min.js"></script>
+<script src="pincode.min.js"></script>
 ```
 
 2. Call the plugin:
