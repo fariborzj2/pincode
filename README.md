@@ -17,7 +17,7 @@ Include the PinCode JavaScript file in your HTML
 1. Include code:
 
 ```html
-<script src="pinlogin.pkgd.min.js"></script>
+	<script src="pincode.min.js"></script>
 ```
 
 2. Call the plugin:
