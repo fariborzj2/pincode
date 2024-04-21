@@ -9,7 +9,7 @@
  * @email fariborzj2@gmail.com
  */
 
-class PinCode {
+class pinCode {
     /**
      * Constructor for PinCode class.
      * 
