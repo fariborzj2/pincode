@@ -4,7 +4,7 @@ A JavaScript class for creating and managing PIN code inputs.
 
 ## Demo
 A screenshot of the plugins pincode input fields with single instance to illustrate a login procedure and two instances for registration purposes:   
-![screenshot](https://www.kdnsepeti.com/uploads/pincode.png)
+![screenshot](pincode.png)
 
 ## Installation
 
