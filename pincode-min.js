@@ -9,7 +9,7 @@
  * @email fariborzj2@gmail.com
  */
 
-class PinCode{constructor(selector,options){this.selector=selector;this.options=options;this.inputs=[];this.pincode='';this.initInputs();this.attachEventListeners();this.invalidCallback=options.invalid;this.hiddenPincodeInput=document.querySelector(`${this.selector} .pincode`)}
+class pinCode{constructor(selector,options){this.selector=selector;this.options=options;this.inputs=[];this.pincode='';this.initInputs();this.attachEventListeners();this.invalidCallback=options.invalid;this.hiddenPincodeInput=document.querySelector(`${this.selector} .pincode`)}
 initInputs(){const{fields=4,inputClass=''}=this.options;const container=document.querySelector(this.selector);for(let i=0;i<fields;i++){const input=document.createElement('input');input.type='tel';input.maxLength=1;input.minLength=1;input.classList.add('pin-input',...inputClass.split(' '));input.addEventListener('click',()=>{input.value=''});container.appendChild(input);this.inputs.push(input);input.disabled=!0;input.addEventListener('keyup',(event)=>{const target=event.target;target.setSelectionRange(target.value.length,target.value.length)})}
 this.inputs[0].disabled=!1;const hiddenInput=document.createElement('input');hiddenInput.type='text';hiddenInput.classList.add('pincode');hiddenInput.hidden=!0;container.appendChild(hiddenInput)}
 attachEventListeners(){this.inputs.forEach((input,index)=>{input.addEventListener('input',(event)=>{this.handleInput(event,index);const target=event.target;target.setSelectionRange(target.value.length,target.value.length)});input.addEventListener('keydown',(event)=>{this.handleKeydown(event,index)})})}
