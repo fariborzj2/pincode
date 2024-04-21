@@ -18,13 +18,19 @@ npm install pincode-class
 Include the PinCode JavaScript file in your HTML
 
 
-1. Include code:
+1. Include the pincode JavaScript file in your HTML:
 
 ```html
 <script src="pincode.min.js"></script>
 ```
 
-2. Call the plugin:
+2. Create an HTML container element where you want the PIN code inputs to appear
+
+```html
+<div id="pincode-container"></div>
+```
+
+3. Initialize the pincode library with the container element selector and any options you want to customize:
 ```javascript
 const pincode = new Pincode('#pincode-container', {
       fields: 4,
