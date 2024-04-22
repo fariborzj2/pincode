@@ -2,10 +2,10 @@
 
 A JavaScript class for creating and managing PIN code inputs.
 
-* Version: 1.0.1
-* Author: Fariborz Jafarzadeh
-* License: MIT
-* Contact: fariborzj2@gmail.com
+* **Version:** 1.0.1
+* **Author:** Fariborz Jafarzadeh
+* **License:** MIT
+* **Contact:** fariborzj2@gmail.com
 
 ## Demo
 A screenshot of the plugins pincode input fields with single instance to illustrate a login procedure and two instances for registration purposes:   
@@ -67,31 +67,31 @@ const pinCode = new pinCode(document.getElementById('pin-box'), {
 ## Configuration Options
 Customize the pincode library behavior with the following options:
 
-* fields (number): Number of input fields for the PIN code. Default: 5.
-* placeholder (string): Placeholder character for empty fields. Default: '•'.
-* autofocus (boolean): Whether to focus on the first input field automatically. Default: true.
-* hideinput (boolean): Whether to hide the input characters. Default: true.
-* reset (boolean): Whether to reset the PIN code after completion. Default: false.
-* pattern (string): Regular expression pattern for input validation. Default: "^[0-9]*$".
-* copypaste (boolean): Whether to allow copying and pasting the PIN code. Default: true.
-* complete (function): Callback function called when the PIN code is completed.
-* invalid (function): Callback function called when an invalid input is detected.
-* keydown (function): Callback function called on keydown event for custom handling.
-* input (function): Callback function called on input event for custom handling.
+* **fields (number):** Number of input fields for the PIN code. Default: 5.
+* **placeholder (string):** Placeholder character for empty fields. Default: '•'.
+* **autofocus (boolean):** Whether to focus on the first input field automatically. Default: true.
+* **hideinput (boolean):** Whether to hide the input characters. Default: true.
+* **reset (boolean):** Whether to reset the PIN code after completion. Default: false.
+* **pattern (string):** Regular expression pattern for input validation. Default: "^[0-9]*$".
+* **copypaste (boolean):** Whether to allow copying and pasting the PIN code. Default: true.
+* **complete (function):** Callback function called when the PIN code is completed.
+* **invalid (function):** Callback function called when an invalid input is detected.
+* **keydown (function):** Callback function called on keydown event for custom handling.
+* **input (function):** Callback function called on input event for custom handling.
 
 ## Methods
 
-* reset(): Resets the PIN code inputs.
-* disable(): Disables all input fields.
-* enable(): Enables all input fields.
+* **reset():** Resets the PIN code inputs.
+* **disable():** Disables all input fields.
+* **enable():** Enables all input fields.
 
 
 ## Methods
 
-* complete(pincode): Triggered when the PIN code is completed.
-* invalid(input, index): Triggered when an invalid input is detected.
-* keydown(event, input, index): Triggered on keydown event for custom handling.
-* input(event, input, index): Triggered on input event for custom handling.
+* **complete(pincode):** Triggered when the PIN code is completed.
+* **invalid(input, index):** Triggered when an invalid input is detected.
+* **keydown(event, input, index):** Triggered on keydown event for custom handling.
+* **input(event, input, index):** Triggered on input event for custom handling.
 
 ## License
 
