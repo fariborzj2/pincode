@@ -24,8 +24,6 @@ npm install pin-code
 ```
 
 ## Basic Usage
-Include the PinCode JavaScript file in your HTML
-
 
 1. Include the pincode JavaScript file in your HTML:
 
