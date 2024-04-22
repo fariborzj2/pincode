@@ -1,190 +1,242 @@
+
 /**
  * PinCode Class
  * 
  * A JavaScript class for creating and managing PIN code inputs.
  * 
- * @version 1.0.0
+ * @version 1.0.1
  * @author Fariborz Jafarzadeh
  * @license MIT
  * @email fariborzj2@gmail.com
  */
 
 class pinCode {
-    /**
-     * Constructor for PinCode class.
-     * 
-     * @param {string} selector - The selector for the container element where PIN code inputs will be generated.
-     * @param {Object} options - Options for configuring PinCode behavior.
-     * @param {number} [options.fields=4] - The number of PIN code input fields to generate.
-     * @param {string} [options.inputClass=''] - Additional CSS classes to apply to the PIN code input fields.
-     * @param {Function} [options.complete] - A callback function to be called when the PIN code is complete.
-     * @param {Function} [options.invalid] - A callback function to be called when an invalid input is detected.
-     * @param {Function} [options.keydown] - A callback function to be called when a key is pressed down on an input field.
-     */
     constructor(selector, options) {
-        this.selector = selector;
-        this.options = options;
-        this.inputs = [];
-        this.pincode = '';
-
-        // Initialize PIN code inputs
-        this.initInputs();
-
-        // Attach event listeners
-        this.attachEventListeners();
-
-        // Store the invalid callback function
-        this.invalidCallback = options.invalid;
-
-        // Reference to hidden PIN code input field
-        this.hiddenPincodeInput = document.querySelector(`${this.selector} .pincode`);
+        this.elementId = selector.id;
+        console.log(selector);
+        this.defaults = {
+            fields: 5,
+            placeholder: "•",
+            autofocus: true,
+            hideinput: true,
+            reset: false,
+            pattern: "^[0-9]*$",
+            copypaste: true,
+            complete: function(pincode) {},
+            invalid: function(input, index) {},
+            keydown: function(event, input, index) {},
+            input: function(event, input, index) {}
+        };
+        this.settings = Object.assign({}, this.defaults, options);
+        this.values = new Array(this.settings.fields);
+        this.timers = [];
+        this.createInputs(selector);
+        this.reset();
+        if (this.settings.autofocus) this.focus(0);
     }
 
-    // Initialize PIN code input fields
-    initInputs() {
-        const { fields = 4, inputClass = '' } = this.options;
-        const container = document.querySelector(this.selector);
+    createInputs(container) {
+        const pincodeContainer = document.createElement("div");
+        pincodeContainer.id = `${this.elementId}pinContainer`;
+        pincodeContainer.classList.add("pin-container");
 
-        for (let i = 0; i < fields; i++) {
-            const input = document.createElement('input');
-            input.type = 'tel';
-            input.maxLength = 1;
-            input.minLength = 1;
-            // input.placeholder = '*';
-            input.classList.add('pin-input', ...inputClass.split(' '));
-
-            // Clear input on click
-            input.addEventListener('click', () => {
-                input.value = '';
-            });
-
-            container.appendChild(input);
-            this.inputs.push(input);
-
-            // Disable all inputs initially
-            input.disabled = true;
-
-            // Move cursor to end on keyup
-            input.addEventListener('keyup', (event) => {
-                const target = event.target;
-                target.setSelectionRange(target.value.length, target.value.length);
-            });            
+    
+        for (let i = 0; i < this.settings.fields; i++) {
+            const input = this.createInput(this.getFieldId(i));
+            this.attachEvents(input, i);
+            pincodeContainer.appendChild(input);
         }
 
-        // Enable the first input
-        this.inputs[0].disabled = false;
-
-        // Create hidden input for storing PIN code
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'text';
-        hiddenInput.classList.add('pincode');
-        hiddenInput.hidden = true;
-        container.appendChild(hiddenInput);
+        container.appendChild(pincodeContainer);
     }
 
-    // Attach event listeners to inputs
-    attachEventListeners() {
-        this.inputs.forEach((input, index) => {
-            input.addEventListener('input', (event) => {
-                this.handleInput(event, index);
-                const target = event.target;
-                target.setSelectionRange(target.value.length, target.value.length);
-            });
+    createInput(id) {
+        const input = document.createElement("input");
+        input.id = id;
+        input.name = id;
+        input.type = "tel";
+        input.maxLength = 1;
+        input.inputMode = "numeric";
+        input.pattern = this.settings.pattern;
+        input.autocomplete = false;
+        input.autocorrect = "off";
+        input.autocapitalize = "off";
+        input.spellcheck = false;
+        input.role = "presentation";
+        input.classList.add("pin-input");
 
-            input.addEventListener('keydown', (event) => {
-                this.handleKeydown(event, index);
-            });
+        return input;
+    }
+
+    attachEvents(input, index) {
+        const self = this;
+
+        input.addEventListener("focus", function() {
+            if (!this.readOnly) {
+                this.value = "";
+            }
         });
+
+        input.addEventListener("input", function(event) {
+            if (!self.validateInput(index)) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            self.settings.input(event, this, index);
+            self.values[index] = this.value;
+
+            if (index < self.settings.fields - 1) {
+                if (self.settings.hideinput) {
+                    if (index > 0) {
+                        self.getField(index - 1).value = self.settings.placeholder;
+                    }
+
+                    const currentInput = this;
+                    self.timers.push(setTimeout(function() {
+                        currentInput.value = self.settings.placeholder;
+                    }, 1000));
+                }
+
+                self.getField(index + 1).removeAttribute("readonly");
+                self.focus(index + 1);
+            } else {
+                if (self.settings.hideinput) {
+                    this.value = self.settings.placeholder;
+                }
+
+                const pincode = self.values.join("");
+                if (self.settings.reset) {
+                    self.reset();
+                }
+                self.settings.complete(pincode);
+            }
+        });
+
+        input.addEventListener("keydown", function(event) {
+            self.timers.forEach(timer => clearTimeout(timer));
+            self.timers = [];
+
+            self.settings.keydown(event, this, index);
+
+            if ((event.keyCode === 37 || event.keyCode === 8) && index > 0) {
+                self.resetField(index);
+                self.focus(index - 1);
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+
+        if (this.settings.copypaste && index === 0) {
+            input.addEventListener("paste", (event) => { 
+                event.stopPropagation();
+                event.preventDefault();
+        
+                const clipboardData = (event.clipboardData || window.clipboardData).getData("Text").trim();
+        
+                console.log('past number: ' + clipboardData.length);
+        
+                if (clipboardData.length === this.settings.fields) { 
+                    let isValid = true;
+        
+                    self.getField(0).removeAttribute("readonly");
+                    Array.from(clipboardData).forEach((char, i) => {
+                        const field = self.getField(i);
+                        field.value = char;
+                        self.values[i] = char;
+                        if (!self.validateInput(i)) { 
+                            isValid = false;
+                            return; 
+                        }
+                        if (i < self.settings.fields - 1) {
+                            self.focus(i + 1);
+                        }
+                    });
+        
+                    if (isValid) {
+                        const pincode = Array.from(self.values).join("");
+                        if (self.settings.reset) {
+                            self.reset();
+                        }
+                        self.settings.complete(pincode);
+                    }
+                }
+            });
+        }
+        
+               
+    
     }
 
-    // Handle input events
-    handleInput(event, index) {
-        const currentInput = event.target;
-        const maxLength = parseInt(currentInput.getAttribute('maxlength'));
-        const nextInput = this.inputs[index + 1];
-
-        // Move to next input when current is filled
-        if (currentInput.value && !isNaN(parseInt(currentInput.value)) && currentInput.value.length === maxLength && nextInput) {
-            nextInput.disabled = false;
-            nextInput.focus();
-        }
-
-        // Complete PIN code entry
-        if (index === this.inputs.length - 1 && currentInput.value) {
-            this.pincode = Array.from(this.inputs).map(input => input.value).join('');
-            this.hiddenPincodeInput.value = this.pincode; // Update hidden input value
-            if (typeof this.options.complete === 'function') {
-                this.options.complete(this.pincode);
-            }
-        }
-
-        // Handle invalid input
-        if (isNaN(parseInt(currentInput.value))) {
-            if (typeof this.invalidCallback === 'function') {
-                this.invalidCallback(currentInput, index);
-            }
-            currentInput.value = ''; // Clear input
-        }
-
-        // Toggle class based on input value
-        currentInput.classList.toggle('pinvalid', !!currentInput.value);
-
-        // Return if input value is empty
-        if (!currentInput.value) {
-            return;
+    validateInput(index) {
+        const field = this.getField(index);
+        const pattern = new RegExp(field.pattern);
+        if (field.value.match(pattern)) {
+            field.classList.remove("invalid");
+            return true;
+        } else {
+            field.value = "";
+            field.classList.add("invalid");
+            this.settings.invalid(field, index);
+            return false;
         }
     }
 
-    // Handle keydown events
-    handleKeydown(event, index) {
-        const currentInput = event.target;
-        const previousInput = this.inputs[index - 1];
-        const nextInput = this.inputs[index + 1];
+    getFieldId(index) {
+        return `${this.elementId}_pincode_${index}`;
+    }
 
-        // Move focus to previous input on Backspace
-        if (event.key === 'Backspace' && !currentInput.value && previousInput) {
-            previousInput.focus();
-        }
+    getField(index) {
+        return document.getElementById(this.getFieldId(index));
+    }
 
-        // Move focus to previous input on Left Arrow
-        if (event.key === 'ArrowLeft' && previousInput) {
-            previousInput.focus();
-        }
+    focus(index) {
+        this.enableField(index);
+        this.getField(index).focus();
+    }
 
-        // Move focus to next input on Right Arrow
-        if (event.key === 'ArrowRight' && nextInput) {
-            nextInput.focus();
-        }
-
-        // Delete value in next input on Delete
-        if (event.key === 'Delete' && !currentInput.value && nextInput) {
-            nextInput.value = '';
-            currentInput.focus();
-        }
-
-        // Auto-fill next input with number
-        if (!isNaN(parseInt(event.key)) && currentInput.value && currentInput.value.length === 1 && !nextInput.disabled) {
-            nextInput.value = event.key;
-            nextInput.focus();
-        }
-
-        // Clear current input on Delete key press when no next input
-        if (event.key === 'Delete' && !nextInput) {
-            currentInput.value = '';
-        }
-
-        // Handle non-numeric key press
-        if (isNaN(parseInt(event.key)) && event.key !== 'Backspace' && event.key !== 'Delete') {
-            if (typeof this.invalidCallback === 'function') {
-                this.invalidCallback(currentInput, index);
+    reset() {
+        this.values = new Array(this.settings.fields);
+        for (let i = 0; i < this.settings.fields; i++) {
+            const field = this.getField(i);
+            field.value = "";
+            if (i > 0) {
+                field.readOnly = true;
+                field.classList.remove("invalid");
             }
-            alert('Only English numbers are allowed');
-            currentInput.value = ''; // Clear input
         }
+        if (this.settings.autofocus) {
+            this.focus(0);
+        }
+    }
 
-        // Execute custom keydown callback
-        if (typeof this.options.keydown === 'function') {
-            this.options.keydown(event, currentInput, index);
+    resetField(index) {
+        this.values[index] = "";
+        const field = this.getField(index);
+        field.value = "";
+        field.readOnly = true;
+        field.classList.remove("invalid");
+    }
+
+    disable() {
+        for (let i = 0; i < this.settings.fields; i++) {
+            this.disableField(i);
         }
-    }  
+    }
+
+    disableField(index) {
+        this.getField(index).readOnly = true;
+    }
+
+    enable() {
+        for (let i = 0; i < this.settings.fields; i++) {
+            this.enableField(i);
+        }
+    }
+
+    enableField(index) {
+        this.getField(index).removeAttribute("readonly");
+    }
 }
+
