@@ -77,6 +77,48 @@ class pinCode {
         });
 
         input.addEventListener("input", function(event) {
+            const value = this.value;
+            if (value.length > 1) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Handle paste/autofill behavior for input event
+                const chars = value.split('');
+
+                // If current index is 0 or close to it, and we have enough chars, fill them
+                if (chars.length <= self.settings.fields - index) {
+                    let isValid = true;
+                    chars.forEach((char, i) => {
+                        const targetIndex = index + i;
+                        if (targetIndex < self.settings.fields) {
+                            const field = self.getField(targetIndex);
+                            field.value = char;
+                            self.values[targetIndex] = char;
+                            if (!self.validateInput(targetIndex)) {
+                                isValid = false;
+                            }
+                            if (targetIndex < self.settings.fields - 1) {
+                                self.getField(targetIndex + 1).removeAttribute("readonly");
+                            }
+                        }
+                    });
+
+                    if (isValid) {
+                         const lastIndex = index + chars.length - 1;
+                         if (lastIndex < self.settings.fields - 1) {
+                             self.focus(lastIndex + 1);
+                         } else {
+                             const pincode = self.values.join("");
+                             if (self.settings.reset) {
+                                 self.reset();
+                             }
+                             self.settings.complete(pincode);
+                         }
+                    }
+                    return;
+                }
+            }
+
             if (!self.validateInput(index)) {
                 event.preventDefault();
                 event.stopPropagation();
