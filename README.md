@@ -17,18 +17,18 @@ The PinCode class provides a simple and customizable way to create and manage PI
 
 ## Installation
 
-You can install the PinCode class via npm:
+You can install the PinCode class via npm (if published) or include the script directly.
 
 ```bash
 npm install pin-code
 ```
 
-## Basic Usage
+## Basic Usage (Vanilla JS)
 
 1. Include the pincode JavaScript file in your HTML:
 
 ```html
-<script src="pincode.min.js"></script>
+<script src="pincode.js"></script>
 ```
 
 2. Create an HTML container element where you want the PIN code inputs to appear
@@ -44,23 +44,108 @@ const pinCode = new pinCode(document.getElementById('pin-box'), {
     placeholder: "•",
     autofocus: true,
     hideinput: true,
-    // reset: true,
-    pattern: "^[0-9]*$",
-    copypaste: true,
     complete: function(pincode) {
         console.log("PIN code entered:", pincode);
-    },
-    invalid: function(input, index) {
-        console.log("Invalid input detected at index", index);
-    },
-    keydown: function(event, input, index) {
-        console.log("Keydown event:", event.key, "Input index:", index);
-    },
-    input: function(event, input, index) {
-        console.log("Input event:", event.target.value, "Input index:", index);
     }
 });
 ```
+
+---
+
+## Framework Support
+
+This library includes adapters and examples for **React**, **Vue**, and **Alpine.js**.
+
+### React
+
+A React wrapper component is available in `react/PinCode.jsx`.
+
+**1. Copy the Adapter**
+Copy `react/PinCode.jsx` into your project components folder. Ensure `pincode.js` is also available and imported correctly.
+
+**2. Usage**
+
+```jsx
+import PinCode from './PinCode';
+
+function App() {
+  const handleComplete = (code) => {
+    console.log("Completed:", code);
+  };
+
+  return (
+    <div>
+       <h1>Enter OTP</h1>
+       <PinCode
+          fields={6}
+          onComplete={handleComplete}
+       />
+    </div>
+  );
+}
+```
+
+### Vue 3
+
+A Vue wrapper component is available in `vue/PinCode.vue`.
+
+**1. Copy the Adapter**
+Copy `vue/PinCode.vue` into your project components folder. Ensure `pincode.js` is imported correctly inside it.
+
+**2. Usage**
+
+```vue
+<template>
+  <PinCode
+    :fields="4"
+    @complete="onComplete"
+  />
+</template>
+
+<script>
+import PinCode from './components/PinCode.vue';
+
+export default {
+  components: { PinCode },
+  methods: {
+    onComplete(code) {
+      console.log("Code:", code);
+    }
+  }
+}
+</script>
+```
+
+### Alpine.js
+
+For Alpine.js, you can use the `x-data` directive to initialize the component.
+
+**1. Include Scripts**
+Include both `pincode.js` and `alpine/pincode-alpine.js` (or copy the logic into your main script).
+
+```html
+<script src="path/to/pincode.js"></script>
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('pincode', (options = {}) => ({
+        init() {
+            new pinCode(this.$el, options);
+        }
+    }));
+});
+</script>
+```
+
+**2. Usage**
+
+```html
+<div x-data="pincode({
+    fields: 6,
+    complete: (code) => console.log('Alpine Code:', code)
+})"></div>
+```
+
+---
 
 ## Configuration Options
 Customize the pincode library behavior with the following options:
@@ -82,14 +167,7 @@ Customize the pincode library behavior with the following options:
 * **reset():** Resets the PIN code inputs.
 * **disable():** Disables all input fields.
 * **enable():** Enables all input fields.
-
-
-## Methods
-
-* **complete(pincode):** Triggered when the PIN code is completed.
-* **invalid(input, index):** Triggered when an invalid input is detected.
-* **keydown(event, input, index):** Triggered on keydown event for custom handling.
-* **input(event, input, index):** Triggered on input event for custom handling.
+* **focus(index):** Focus specific input field.
 
 ## License
 

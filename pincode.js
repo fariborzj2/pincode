@@ -281,3 +281,6 @@ class pinCode {
     }
 }
 
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = pinCode;
+}
