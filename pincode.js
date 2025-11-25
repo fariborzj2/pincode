@@ -57,7 +57,7 @@ class pinCode {
         input.maxLength = 1;
         input.inputMode = "numeric";
         input.pattern = this.settings.pattern;
-        input.autocomplete = false;
+        input.autocomplete = "one-time-code";
         input.autocorrect = "off";
         input.autocapitalize = "off";
         input.spellcheck = false;
