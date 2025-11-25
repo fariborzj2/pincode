@@ -9,6 +9,7 @@ A JavaScript class for creating and managing PIN code inputs.
 
 ## Demo
 A screenshot of the plugins pincode input fields with single instance to illustrate a login procedure and two instances for registration purposes:   
+* **Demo Url:** https://fariborzj2.github.io/pincode
 ![screenshot](pincode.png)
 
 ## Introduction
